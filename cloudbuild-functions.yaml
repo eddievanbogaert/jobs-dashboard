@@ -1,0 +1,38 @@
+steps:
+  # Deploy ingest-fred function
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'functions'
+      - 'deploy'
+      - 'ingest-fred'
+      - '--gen2'
+      - '--runtime=python312'
+      - '--region=${_REGION}'
+      - '--source=./functions/ingest_fred'
+      - '--entry-point=ingest'
+      - '--trigger-http'
+      - '--memory=512Mi'
+      - '--timeout=300s'
+
+  # Deploy transform-analytics function
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'functions'
+      - 'deploy'
+      - 'transform-analytics'
+      - '--gen2'
+      - '--runtime=python312'
+      - '--region=${_REGION}'
+      - '--source=./functions/transform'
+      - '--entry-point=transform'
+      - '--trigger-http'
+      - '--memory=512Mi'
+      - '--timeout=300s'
+
+substitutions:
+  _REGION: us-central1
+
+options:
+  logging: CLOUD_LOGGING_ONLY
