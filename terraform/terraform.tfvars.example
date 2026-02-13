@@ -1,0 +1,5 @@
+project_id   = "jobs-dashboard"
+region       = "us-central1"
+bq_location  = "US"
+github_owner = "eddievanbogaert"
+github_repo  = "jobs-dashboard"
