@@ -1,9 +1,11 @@
 """BigQuery client singleton."""
 
+import os
+
 import streamlit as st
 from google.cloud import bigquery
 
-PROJECT = "jobs-dashboard"
+PROJECT = os.environ.get("GCP_PROJECT", "jobs-dashboard-486917")
 DATASET = "labor_market"
 
 
