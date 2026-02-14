@@ -1,5 +1,9 @@
 """Claims page — Weekly initial jobless claims."""
 
+from components.page_config import setup_page
+
+setup_page("Claims")
+
 import streamlit as st
 
 from components.data_loader import load_raw_series, load_series
@@ -53,6 +57,7 @@ if not df_raw.empty:
     st.subheader("Year-over-Year Comparison")
     import pandas as pd
 
+    df_raw["observation_date"] = pd.to_datetime(df_raw["observation_date"])
     df_raw["year"] = df_raw["observation_date"].dt.year
     df_raw["week"] = df_raw["observation_date"].dt.isocalendar().week.astype(int)
     current_year = df_raw["year"].max()

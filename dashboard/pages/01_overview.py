@@ -1,5 +1,9 @@
 """Overview page — Labor market scorecard with KPI cards."""
 
+from components.page_config import setup_page
+
+setup_page("Overview")
+
 import streamlit as st
 
 from components.data_loader import load_latest_values, load_multiple_series

@@ -1,5 +1,9 @@
 """Job Openings page — JOLTS data and Beveridge curve."""
 
+from components.page_config import setup_page
+
+setup_page("Job Openings")
+
 import streamlit as st
 
 from components.charts import scatter_chart, time_series_chart
