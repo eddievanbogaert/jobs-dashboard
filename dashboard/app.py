@@ -1,13 +1,10 @@
 """U.S. Labor Market Dashboard — Main entry point."""
 
-import streamlit as st
+from components.page_config import setup_page
 
-st.set_page_config(
-    page_title="U.S. Labor Market Dashboard",
-    page_icon=":bar_chart:",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+setup_page("Home")
+
+import streamlit as st
 
 st.sidebar.title("U.S. Labor Market Dashboard")
 st.sidebar.markdown(
@@ -30,6 +27,8 @@ st.markdown(
     - **Wages** — Average hourly earnings trends
     - **Job Openings** — JOLTS data and the Beveridge curve
     - **Claims** — Weekly initial jobless claims
+    - **Industry** — Employment breakdown across 12 major industry sectors
+    - **Net Compensation** — SSA wage distribution data (2004–2023)
 
     Data refreshes automatically after each monthly BLS Employment Situation release
     and weekly for Initial Jobless Claims.
