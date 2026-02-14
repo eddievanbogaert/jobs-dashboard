@@ -36,3 +36,6 @@ credentials.json
 
 # Cloud Functions build artifacts
 functions/*/deploy.zip
+
+# Data
+data/
