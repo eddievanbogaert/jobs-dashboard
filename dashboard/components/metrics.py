@@ -17,6 +17,13 @@ def render_kpi_card(series_id: str, row: dict):
     mom = row.get("mom_change")
     date_label = format_date_label(row["observation_date"]) if row.get("observation_date") else ""
 
+    # Apply display divisor (e.g., thousands → millions)
+    divisor = meta.get("display_divisor")
+    if divisor and value is not None:
+        value = value / divisor
+    if divisor and mom is not None:
+        mom = mom / divisor
+
     # Determine delta color direction
     higher_good = HIGHER_IS_BETTER.get(series_id, True)
     delta_color = "normal" if higher_good else "inverse"

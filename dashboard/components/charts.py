@@ -108,6 +108,7 @@ def scatter_chart(
         df_y[["observation_date", "value"]].rename(columns={"value": "y"}),
         on="observation_date",
     )
+    merged["observation_date"] = pd.to_datetime(merged["observation_date"])
     meta_x = SERIES_META.get(x_series, {})
     meta_y = SERIES_META.get(y_series, {})
 
@@ -119,4 +120,76 @@ def scatter_chart(
         labels={"x": meta_x.get("short_name", x_series), "y": meta_y.get("short_name", y_series)},
     )
     fig.update_layout(**LAYOUT_DEFAULTS)
+    return fig
+
+
+def stacked_area_chart(
+    df: pd.DataFrame,
+    series_ids: list[str],
+    title: str = "",
+) -> go.Figure:
+    """Stacked area chart for multiple series (e.g., industry employment)."""
+    fig = go.Figure()
+    for sid in series_ids:
+        meta = SERIES_META.get(sid, {})
+        sdf = df[df["series_id"] == sid].sort_values("observation_date")
+        if sdf.empty:
+            continue
+        fig.add_trace(go.Scatter(
+            x=sdf["observation_date"], y=sdf["value"],
+            mode="lines",
+            name=meta.get("short_name", sid),
+            line=dict(width=0.5, color=meta.get("color", "#333")),
+            stackgroup="one",
+        ))
+
+    fig.update_layout(
+        title=title,
+        yaxis_title="Thousands of Persons",
+        height=500,
+        **LAYOUT_DEFAULTS,
+    )
+    return fig
+
+
+def industry_changes_bar(
+    df: pd.DataFrame,
+    series_ids: list[str],
+    title: str = "Monthly Employment Change by Industry",
+) -> go.Figure:
+    """Horizontal bar chart of latest MoM change per series."""
+    rows = []
+    for sid in series_ids:
+        meta = SERIES_META.get(sid, {})
+        sdf = df[df["series_id"] == sid].sort_values("observation_date")
+        if sdf.empty:
+            continue
+        latest = sdf.iloc[-1]
+        mom = latest.get("mom_change")
+        if mom is None:
+            continue
+        rows.append({
+            "name": meta.get("short_name", sid),
+            "change": mom,
+            "color": meta.get("color", "#333"),
+        })
+
+    if not rows:
+        return go.Figure()
+
+    bar_df = pd.DataFrame(rows).sort_values("change")
+    colors = ["#2ca02c" if v >= 0 else "#d62728" for v in bar_df["change"]]
+
+    fig = go.Figure(go.Bar(
+        x=bar_df["change"],
+        y=bar_df["name"],
+        orientation="h",
+        marker_color=colors,
+    ))
+    fig.update_layout(
+        title=title,
+        xaxis_title="Change (Thousands)",
+        height=max(350, len(rows) * 35),
+        **LAYOUT_DEFAULTS,
+    )
     return fig
