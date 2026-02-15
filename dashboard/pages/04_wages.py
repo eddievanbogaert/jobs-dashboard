@@ -1,5 +1,9 @@
 """Wages page — Average hourly earnings trends."""
 
+from components.page_config import setup_page
+
+setup_page("Wages")
+
 import streamlit as st
 
 from components.charts import time_series_chart

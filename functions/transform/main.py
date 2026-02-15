@@ -10,7 +10,10 @@ PROJECT = os.environ.get("GCP_PROJECT", "jobs-dashboard")
 DATASET = os.environ.get("BQ_DATASET", "labor_market")
 
 TRANSFORM_SQL = f"""
-CREATE OR REPLACE TABLE `{PROJECT}.{DATASET}.analytics_monthly` AS
+CREATE OR REPLACE TABLE `{PROJECT}.{DATASET}.analytics_monthly`
+PARTITION BY DATE_TRUNC(observation_date, MONTH)
+CLUSTER BY series_id
+AS
 WITH ordered AS (
     SELECT
         series_id,
@@ -59,7 +62,6 @@ SELECT
     ROUND(ma_12m, 4) AS ma_12m,
     SAFE_DIVIDE(value - mean_5y, stddev_5y) AS z_score_5y
 FROM ordered
-ORDER BY series_id, observation_date
 """
 
 

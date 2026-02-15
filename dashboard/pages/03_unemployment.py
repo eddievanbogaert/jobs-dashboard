@@ -1,5 +1,9 @@
 """Unemployment page — U-3 and U-6 rates."""
 
+from components.page_config import setup_page
+
+setup_page("Unemployment")
+
 import streamlit as st
 
 from components.charts import dual_series_chart, time_series_chart

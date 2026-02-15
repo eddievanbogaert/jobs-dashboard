@@ -1,5 +1,9 @@
 """Employment page — Nonfarm payrolls, participation rate, emp-pop ratio."""
 
+from components.page_config import setup_page
+
+setup_page("Employment")
+
 import streamlit as st
 
 from components.charts import bar_chart_changes, dual_series_chart, time_series_chart

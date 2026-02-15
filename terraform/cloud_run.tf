@@ -18,6 +18,11 @@ resource "google_cloud_run_v2_service" "dashboard" {
         container_port = 8080
       }
 
+      env {
+        name  = "GCP_PROJECT"
+        value = var.project_id
+      }
+
       resources {
         limits = {
           memory = "1Gi"
