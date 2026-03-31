@@ -5,7 +5,7 @@ import os
 import streamlit as st
 from google.cloud import bigquery
 
-PROJECT = os.environ.get("GCP_PROJECT", "jobs-dashboard-486917")
+PROJECT = os.environ.get("GCP_PROJECT")
 DATASET = "labor_market"
 
 

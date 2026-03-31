@@ -1,7 +1,6 @@
 variable "project_id" {
   description = "GCP project ID"
   type        = string
-  default     = "jobs-dashboard"
 }
 
 variable "region" {
@@ -19,11 +18,15 @@ variable "bq_location" {
 variable "github_owner" {
   description = "GitHub repository owner"
   type        = string
-  default     = "eddievanbogaert"
 }
 
 variable "github_repo" {
   description = "GitHub repository name"
   type        = string
   default     = "jobs-dashboard"
+}
+
+variable "dashboard_domain" {
+  description = "Custom domain for the dashboard Cloud Run service"
+  type        = string
 }

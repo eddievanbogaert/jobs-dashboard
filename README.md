@@ -14,6 +14,9 @@ Cloud Scheduler ──▶ Cloud Functions (ingest) ──▶ BigQuery (raw)
                       │
                       ▼
                Cloud Run (Streamlit)  ◀── Cloud Build (CI/CD on push)
+                      │
+                      ▼
+               Custom Domain (HTTPS)
 ```
 
 ### Components
@@ -28,6 +31,7 @@ Cloud Scheduler ──▶ Cloud Functions (ingest) ──▶ BigQuery (raw)
 | **CI/CD** | Cloud Build | Auto-deploy dashboard and functions on push to `main` |
 | **Container Registry** | Artifact Registry | Docker images for the dashboard |
 | **Secrets** | Secret Manager | FRED API key storage |
+| **Custom Domain** | Cloud Run Domain Mapping | HTTPS subdomain with Google-managed SSL |
 | **IaC** | Terraform | All infrastructure defined as code |
 
 ## Tracked Series
@@ -103,8 +107,14 @@ echo -n 'YOUR_FRED_API_KEY' | gcloud secrets versions add fred-api-key --data-fi
 
 ```bash
 cd terraform
-cp terraform.tfvars.example terraform.tfvars  # edit if needed
-terraform init
+
+# Create your config files from examples (both are gitignored)
+cp terraform.tfvars.example terraform.tfvars   # fill in your GCP project ID, GitHub owner, domain
+cat > backend.conf <<EOF
+bucket = "YOUR_PROJECT_ID-tf-state"
+EOF
+
+terraform init -backend-config=backend.conf
 terraform apply
 ```
 
@@ -164,6 +174,8 @@ make lint
 │   ├── parse_ssa_html.py        # SSA wage HTML → CSV parser
 │   └── generate_assets.py       # Favicon and OG image generator
 └── terraform/                   # All GCP infrastructure as code
+    ├── terraform.tfvars.example # Template for required variables
+    └── backend.conf             # (gitignored) GCS state bucket config
 ```
 
 ## Cost Estimate
