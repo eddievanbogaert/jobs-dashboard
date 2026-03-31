@@ -17,6 +17,7 @@ terraform/*.tfstate
 terraform/*.tfstate.*
 terraform/.terraform.lock.hcl
 terraform/*.tfvars
+terraform/backend.conf
 !terraform/terraform.tfvars.example
 
 # IDE

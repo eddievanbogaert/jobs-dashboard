@@ -14,6 +14,9 @@ Cloud Scheduler ──▶ Cloud Functions (ingest) ──▶ BigQuery (raw)
                       │
                       ▼
                Cloud Run (Streamlit)  ◀── Cloud Build (CI/CD on push)
+                      │
+                      ▼
+               Custom Domain (HTTPS)
 ```
 
 ### Components
@@ -28,9 +31,12 @@ Cloud Scheduler ──▶ Cloud Functions (ingest) ──▶ BigQuery (raw)
 | **CI/CD** | Cloud Build | Auto-deploy dashboard and functions on push to `main` |
 | **Container Registry** | Artifact Registry | Docker images for the dashboard |
 | **Secrets** | Secret Manager | FRED API key storage |
+| **Custom Domain** | Cloud Run Domain Mapping | HTTPS subdomain with Google-managed SSL |
 | **IaC** | Terraform | All infrastructure defined as code |
 
 ## Tracked Series
+
+### Core Labor Market (FRED API)
 
 | Series ID | Indicator | Frequency | Source |
 |-----------|-----------|-----------|--------|
@@ -43,6 +49,27 @@ Cloud Scheduler ──▶ Cloud Functions (ingest) ──▶ BigQuery (raw)
 | `U6RATE` | U-6 Underemployment Rate | Monthly | BLS/CPS |
 | `EMRATIO` | Employment-Population Ratio | Monthly | BLS/CPS |
 
+### Industry Sectors (FRED API — BLS/CES)
+
+| Series ID | Sector |
+|-----------|--------|
+| `USEHS` | Education & Health Services |
+| `USPBS` | Professional & Business Services |
+| `USGOVT` | Government |
+| `USLAH` | Leisure & Hospitality |
+| `USTRADE` | Retail Trade |
+| `MANEMP` | Manufacturing |
+| `USCONS` | Construction |
+| `USFIRE` | Financial Activities |
+| `CES4300000001` | Transportation & Warehousing |
+| `USWTRADE` | Wholesale Trade |
+| `USINFO` | Information |
+| `USMINE` | Mining & Logging |
+
+### SSA Wage Statistics
+
+The Net Compensation page uses Social Security Administration wage distribution data (2004–2023), parsed from SSA HTML reports via `scripts/parse_ssa_html.py` and served as static CSV files from the dashboard container.
+
 ## Dashboard Pages
 
 1. **Overview** — KPI scorecard for all indicators + z-score pulse chart
@@ -51,6 +78,8 @@ Cloud Scheduler ──▶ Cloud Functions (ingest) ──▶ BigQuery (raw)
 4. **Wages** — Average hourly earnings level and year-over-year growth
 5. **Job Openings** — JOLTS openings trend and Beveridge curve (openings vs unemployment)
 6. **Claims** — Weekly initial claims with 4-week moving average, year-over-year overlay
+7. **Industry** — Stacked area chart of 12 BLS CES sectors, month-over-month change bar chart, per-sector trend expanders
+8. **Net Compensation** — SSA wage distribution (2004–2023): median/average trends, bracket distribution, cumulative distribution, year-over-year comparison
 
 ## Setup
 
@@ -78,8 +107,14 @@ echo -n 'YOUR_FRED_API_KEY' | gcloud secrets versions add fred-api-key --data-fi
 
 ```bash
 cd terraform
-cp terraform.tfvars.example terraform.tfvars  # edit if needed
-terraform init
+
+# Create your config files from examples (both are gitignored)
+cp terraform.tfvars.example terraform.tfvars   # fill in your GCP project ID, GitHub owner, domain
+cat > backend.conf <<EOF
+bucket = "YOUR_PROJECT_ID-tf-state"
+EOF
+
+terraform init -backend-config=backend.conf
 terraform apply
 ```
 
@@ -123,8 +158,9 @@ make lint
 ├── dashboard/                   # Streamlit app (Cloud Run)
 │   ├── Dockerfile
 │   ├── app.py                   # Entry point
-│   ├── pages/                   # Dashboard pages (01-06)
-│   ├── components/              # Charts, metrics, data loader, filters
+│   ├── pages/                   # Dashboard pages (01-08)
+│   ├── components/              # Charts, metrics, data loader, page config
+│   ├── data/                    # Static CSVs (SSA wage distribution)
 │   └── utils/                   # BQ client, constants, formatting
 ├── functions/                   # Cloud Functions
 │   ├── ingest_fred/             # FRED API → BigQuery raw
@@ -132,8 +168,14 @@ make lint
 ├── sql/                         # Reference DDL and seed data
 │   ├── schema/
 │   └── seed/
-├── scripts/                     # Bootstrap and backfill helpers
+├── scripts/                     # Bootstrap, backfill, and data prep
+│   ├── bootstrap.sh             # One-time GCP project setup
+│   ├── backfill.sh              # Historical FRED data backfill
+│   ├── parse_ssa_html.py        # SSA wage HTML → CSV parser
+│   └── generate_assets.py       # Favicon and OG image generator
 └── terraform/                   # All GCP infrastructure as code
+    ├── terraform.tfvars.example # Template for required variables
+    └── backend.conf             # (gitignored) GCS state bucket config
 ```
 
 ## Cost Estimate

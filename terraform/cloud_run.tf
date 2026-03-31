@@ -37,3 +37,21 @@ resource "google_cloud_run_v2_service" "dashboard" {
     google_artifact_registry_repository.docker,
   ]
 }
+
+resource "google_cloud_run_domain_mapping" "dashboard" {
+  name     = var.dashboard_domain
+  location = var.region
+  project  = var.project_id
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.dashboard.name
+  }
+
+  depends_on = [
+    google_cloud_run_v2_service.dashboard,
+  ]
+}
