@@ -80,6 +80,7 @@ The Net Compensation page uses Social Security Administration wage distribution 
 6. **Claims** — Weekly initial claims with 4-week moving average, year-over-year overlay
 7. **Industry** — Stacked area chart of 12 BLS CES sectors, month-over-month change bar chart, per-sector trend expanders
 8. **Net Compensation** — SSA wage distribution (2004–2023): median/average trends, bracket distribution, cumulative distribution, year-over-year comparison
+9. **Analysis** — Written assessment of current labor market conditions, prepared by Claude
 
 ## Setup
 
@@ -158,7 +159,7 @@ make lint
 ├── dashboard/                   # Streamlit app (Cloud Run)
 │   ├── Dockerfile
 │   ├── app.py                   # Entry point
-│   ├── pages/                   # Dashboard pages (01-08)
+│   ├── pages/                   # Dashboard pages (01-09)
 │   ├── components/              # Charts, metrics, data loader, page config
 │   ├── data/                    # Static CSVs (SSA wage distribution)
 │   └── utils/                   # BQ client, constants, formatting
